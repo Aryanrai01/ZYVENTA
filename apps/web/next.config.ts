@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import type { NextConfig } from 'next';
 
 const isProduction = process.env.NODE_ENV === 'production';
+const isVercel = process.env.VERCEL === '1';
 const monorepoRoot = path.join(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 /**
@@ -20,7 +21,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
+  ...(isVercel ? {} : { output: 'standalone' }),
   // Trace files from the monorepo root so the standalone build includes @zyventa/shared.
   outputFileTracingRoot: monorepoRoot,
   reactStrictMode: true,

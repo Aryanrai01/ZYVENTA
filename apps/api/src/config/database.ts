@@ -1,12 +1,7 @@
-import { setServers } from 'node:dns';
 import { mongoose } from '../database/mongoose.js';
 import { logger } from './logger.js';
 
 export async function connectDatabase(uri: string): Promise<typeof mongoose> {
-  if (uri.startsWith('mongodb+srv://')) {
-    setServers(['1.1.1.1', '8.8.8.8']);
-  }
-
   mongoose.connection.on('disconnected', () => {
     logger.warn('MongoDB disconnected');
   });

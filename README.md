@@ -245,21 +245,43 @@ E2E_BASE_URL=https://staging.example.com pnpm --filter @zyventa/web e2e   # or a
 
 ## Production deployment
 
-- Serve web and API from **the same registrable domain**, for example `www.zyventa.com` and
-  `api.zyventa.com`, so auth cookies stay first-party.
-- API: `NODE_ENV=production`, https-only `CORS_ORIGINS`, `TRUST_PROXY_HOPS` set to the number of
-  proxies in front of it, and `COOKIE_DOMAIN=.zyventa.com`. Provide secrets through your host's
-  secret manager or an env file mounted at runtime, never as Docker build arguments.
-- MongoDB Atlas (replica set, IP allow-list, least-privilege DB user). Run
-  `pnpm db:sync-indexes` once per release, and `pnpm create-admin` once.
-- Build images on any container host:
-  `docker build -f apps/api/Dockerfile .` and
-  `docker build -f apps/web/Dockerfile --build-arg NEXT_PUBLIC_API_URL=… --build-arg NEXT_PUBLIC_SITE_URL=… --build-arg NEXT_PUBLIC_RAZORPAY_KEY_ID=… .`
+- Use custom domains under the **same registrable domain**, for example `www.example.com` on
+  Vercel and `api.example.com` on Render. The default `vercel.app` and `onrender.com` domains are
+  different sites; browser third-party-cookie restrictions can break authentication between them.
+- Create a MongoDB Atlas database user with access only to the application database. Add Render's
+  outbound IP addresses to the Atlas network access list (avoid `0.0.0.0/0` where possible), and
+  copy the cluster's `mongodb+srv://` URI.
+- In Render, create a Blueprint from this repository and select `render.yaml`. It builds the API
+  Dockerfile using the repository root as its context. Configure the prompted values: `MONGODB_URI`,
+  `JWT_ACCESS_SECRET`, `TOKEN_HASH_SECRET`, `CORS_ORIGINS` (`https://www.example.com`),
+  `WEB_APP_URL` (`https://www.example.com`) and `COOKIE_DOMAIN` (`.example.com`). Generate the two
+  secrets independently with `openssl rand -base64 64`. The blueprint sets production mode and
+  Render's one-proxy hop; Render supplies `PORT` automatically. Its readiness check waits for Atlas.
+- In Vercel, import the monorepo and set **Root Directory** to `apps/web`. Use the Next.js framework,
+  the default output directory, and these commands if Vercel does not detect them automatically:
+  install `pnpm install --frozen-lockfile`; build
+  `pnpm --filter @zyventa/shared build && pnpm --filter @zyventa/web build`. Set build-time
+  variables `NEXT_PUBLIC_API_URL=https://api.example.com/api/v1` and
+  `NEXT_PUBLIC_SITE_URL=https://www.example.com`; set `NEXT_PUBLIC_RAZORPAY_KEY_ID` only when
+  payments are configured. Do not set `API_INTERNAL_URL` on Vercel. `NEXT_PUBLIC_*` values are
+  public and are embedded into the frontend build.
+- Set the same production values in each host: `CORS_ORIGINS` must contain the exact frontend
+  origin(s), without a trailing slash; `WEB_APP_URL` and `NEXT_PUBLIC_SITE_URL` must be the
+  canonical HTTPS frontend URL; `COOKIE_DOMAIN` must match the shared parent domain. Do not add
+  arbitrary Vercel preview origins to production CORS. Use a separate staging API/database and
+  explicit staging origin for preview deployments.
+- Configure SMTP, Cloudinary and Razorpay credentials in Render only when enabling those features.
+  Use live Razorpay credentials in production and set the webhook URL to
+  `https://api.example.com/api/v1/webhooks/razorpay`.
+- Before opening traffic, run `pnpm db:sync-indexes --apply` against Atlas and create the initial
+  administrator with `pnpm create-admin`. Then verify `/api/v1/health/ready`, registration/login,
+  image uploads, email delivery, and a complete test-mode payment/webhook/refund cycle in staging.
+- For local Docker deployments, the existing API and web Dockerfiles remain usable. Build from the
+  repository root; the web image requires `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SITE_URL` and, if
+  applicable, `NEXT_PUBLIC_RAZORPAY_KEY_ID` as build arguments.
 - Background jobs (expiring unpaid orders, releasing seller earnings) run inside the API process
   and coordinate with MongoDB leases, so any number of replicas is safe. You can also set `JOBS_ENABLED=false`
   on web-facing replicas and run one replica with `true` as a dedicated worker.
-- Point the Razorpay webhook at the production API and switch to live keys only after a full
-  test-mode order, refund and webhook cycle.
 - Performance: API responses for public catalogue data carry `Cache-Control`; the web app caches
   each API fetch (`next.revalidate`) and serves images through the
   Next.js optimiser as AVIF/WebP. Pages render per request because the CSP nonce is per request.
