@@ -1,0 +1,31 @@
+{
+  "name": "zyventa",
+  "private": true,
+  "description": "ZYVENTA \u2014 multi-vendor e-commerce platform (Next.js + Express + MongoDB)",
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22.12.0",
+    "pnpm": ">=10"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @zyventa/shared build && concurrently -k -n shared,api,web -c gray,blue,magenta \"pnpm --filter @zyventa/shared dev\" \"pnpm --filter @zyventa/api dev\" \"pnpm --filter @zyventa/web dev\"",
+    "dev:api": "pnpm --filter @zyventa/shared build && pnpm --filter @zyventa/api dev",
+    "dev:web": "pnpm --filter @zyventa/shared build && pnpm --filter @zyventa/web dev",
+    "build": "pnpm --filter @zyventa/shared build && pnpm --filter @zyventa/api build && pnpm --filter @zyventa/web build",
+    "typecheck": "pnpm --filter @zyventa/shared build && pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "test": "pnpm --filter @zyventa/shared build && pnpm -r test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "pnpm format:check && pnpm typecheck && pnpm lint && pnpm test",
+    "db:sync-indexes": "pnpm --filter @zyventa/shared build && pnpm --filter @zyventa/api db:sync-indexes",
+    "db:seed": "pnpm --filter @zyventa/shared build && pnpm --filter @zyventa/api db:seed",
+    "create-admin": "pnpm --filter @zyventa/shared build && pnpm --filter @zyventa/api create-admin"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5",
+    "prettier": "^3.9.9",
+    "prettier-plugin-tailwindcss": "^0.7.0",
+    "typescript": "~5.9.3"
+  }
+}

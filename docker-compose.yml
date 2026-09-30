@@ -1,0 +1,86 @@
+# ZYVENTA local stack.
+#
+#   Infrastructure only (run the apps with `pnpm dev`):
+#     docker compose up -d
+#
+#   Everything in containers (production builds of api + web):
+#     docker compose --profile app up -d --build
+#
+# Ports are bound to 127.0.0.1 so databases are never exposed on your network.
+# No secrets live in this file: the api container reads apps/api/.env.
+
+name: zyventa
+
+services:
+  mongo:
+    image: mongo:8
+    # Single-node replica set: required for multi-document transactions (checkout, inventory).
+    command: ['--replSet', 'rs0', '--bind_ip_all']
+    ports:
+      - '127.0.0.1:27017:27017'
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      # Initiates the replica set on first boot, then reports healthy once it is PRIMARY.
+      test:
+        - CMD
+        - mongosh
+        - --quiet
+        - --eval
+        - "try { rs.status().ok } catch (e) { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'localhost:27017' }] }).ok }"
+      interval: 5s
+      timeout: 10s
+      retries: 20
+      start_period: 10s
+    restart: unless-stopped
+
+  # Catches all outgoing email in development. Web UI: http://localhost:8025
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - '127.0.0.1:1025:1025'
+      - '127.0.0.1:8025:8025'
+    restart: unless-stopped
+
+  api:
+    profiles: ['app']
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    env_file:
+      - apps/api/.env
+    environment:
+      # Local container run over plain http; real deployments set NODE_ENV=production + https.
+      NODE_ENV: development
+      LOG_FORMAT: json
+      PORT: '4000'
+      MONGODB_URI: mongodb://mongo:27017/zyventa?replicaSet=rs0&directConnection=true
+      SMTP_HOST: mailpit
+      SMTP_PORT: '1025'
+    ports:
+      - '127.0.0.1:4000:4000'
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    profiles: ['app']
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000/api/v1}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+        NEXT_PUBLIC_RAZORPAY_KEY_ID: ${NEXT_PUBLIC_RAZORPAY_KEY_ID:-}
+    environment:
+      API_INTERNAL_URL: http://api:4000/api/v1
+    ports:
+      - '127.0.0.1:3000:3000'
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  mongo-data:

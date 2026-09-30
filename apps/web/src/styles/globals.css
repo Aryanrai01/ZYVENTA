@@ -1,0 +1,225 @@
+@import 'tailwindcss';
+
+/*
+ * ZYVENTA design tokens.
+ * Semantic CSS variables are the single source of truth; `@theme inline` exposes them as
+ * Tailwind utilities (bg-primary, text-muted-foreground, shadow-card, rounded-lg …).
+ * Components use semantic names only — never raw palette colours — so theming stays central.
+ */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Surfaces */
+  --background: oklch(0.985 0.002 270);
+  --foreground: oklch(0.2 0.02 270);
+  --card: oklch(1 0 0);
+  --card-foreground: var(--foreground);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--foreground);
+  --muted: oklch(0.955 0.006 270);
+  --muted-foreground: oklch(0.48 0.02 270);
+
+  /* Brand — deep indigo primary, saffron accent for deals/offers */
+  --primary: oklch(0.47 0.2 277);
+  --primary-foreground: oklch(0.99 0 0);
+  --primary-soft: oklch(0.95 0.03 277);
+  --secondary: oklch(0.94 0.01 270);
+  --secondary-foreground: oklch(0.25 0.03 270);
+  --accent: oklch(0.82 0.16 75);
+  --accent-foreground: oklch(0.25 0.05 60);
+
+  /* Status — always paired with text/icons, never colour alone */
+  --success: oklch(0.58 0.14 152);
+  --success-foreground: oklch(0.99 0 0);
+  --warning: oklch(0.75 0.15 70);
+  --warning-foreground: oklch(0.25 0.05 60);
+  --destructive: oklch(0.55 0.21 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --info: oklch(0.6 0.13 240);
+
+  /* Commerce-specific */
+  --price: var(--foreground);
+  --price-strike: oklch(0.55 0.015 270);
+  --discount: oklch(0.52 0.15 150);
+  --rating: oklch(0.58 0.14 152);
+
+  /* Lines & focus */
+  --border: oklch(0.91 0.008 270);
+  --input: oklch(0.88 0.01 270);
+  --ring: oklch(0.47 0.2 277 / 0.45);
+
+  --radius: 0.625rem;
+}
+
+.dark {
+  --background: oklch(0.17 0.015 270);
+  --foreground: oklch(0.95 0.005 270);
+  --card: oklch(0.21 0.018 270);
+  --card-foreground: var(--foreground);
+  --popover: oklch(0.21 0.018 270);
+  --popover-foreground: var(--foreground);
+  --muted: oklch(0.25 0.018 270);
+  --muted-foreground: oklch(0.7 0.02 270);
+
+  --primary: oklch(0.68 0.16 277);
+  --primary-foreground: oklch(0.15 0.02 270);
+  --primary-soft: oklch(0.28 0.06 277);
+  --secondary: oklch(0.27 0.02 270);
+  --secondary-foreground: oklch(0.93 0.005 270);
+  --accent: oklch(0.8 0.15 75);
+  --accent-foreground: oklch(0.2 0.04 60);
+
+  --success: oklch(0.7 0.14 152);
+  --success-foreground: oklch(0.15 0.02 152);
+  --warning: oklch(0.8 0.14 70);
+  --warning-foreground: oklch(0.2 0.04 60);
+  --destructive: oklch(0.65 0.19 25);
+  --destructive-foreground: oklch(0.15 0.02 25);
+  --info: oklch(0.72 0.12 240);
+
+  --price-strike: oklch(0.65 0.015 270);
+  --discount: oklch(0.72 0.14 150);
+  --rating: oklch(0.7 0.14 152);
+
+  --border: oklch(0.3 0.02 270);
+  --input: oklch(0.34 0.02 270);
+  --ring: oklch(0.68 0.16 277 / 0.5);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-info: var(--info);
+  --color-price: var(--price);
+  --color-price-strike: var(--price-strike);
+  --color-discount: var(--discount);
+  --color-rating: var(--rating);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+
+  --shadow-card: 0 1px 2px oklch(0.2 0.02 270 / 0.06), 0 1px 3px oklch(0.2 0.02 270 / 0.08);
+  --shadow-raised: 0 4px 12px oklch(0.2 0.02 270 / 0.08), 0 2px 4px oklch(0.2 0.02 270 / 0.06);
+  --shadow-overlay: 0 12px 32px oklch(0.2 0.02 270 / 0.16);
+
+  /* Breakpoints: phones < 640 · large phones/small tablets 640 · tablets 768 · laptops 1024 ·
+     desktops 1280 · large desktops 1536 (Tailwind defaults, plus xs for compact phones). */
+  --breakpoint-xs: 23.75rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply min-h-dvh bg-background font-sans text-foreground antialiased;
+    overflow-x: clip;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@keyframes sheet-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+}
+@keyframes sheet-in-right {
+  from {
+    transform: translateX(100%);
+  }
+}
+@keyframes sheet-in-bottom {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Seller-authored product descriptions (HTML sanitised by the API). */
+@layer components {
+  .rich-text {
+    @apply leading-relaxed text-foreground;
+  }
+  .rich-text > * + * {
+    @apply mt-3;
+  }
+  .rich-text h2,
+  .rich-text h3,
+  .rich-text h4 {
+    @apply mt-5 font-semibold;
+  }
+  .rich-text ul {
+    @apply list-disc pl-5;
+  }
+  .rich-text ol {
+    @apply list-decimal pl-5;
+  }
+  .rich-text a {
+    @apply text-primary underline underline-offset-2;
+  }
+  .rich-text table {
+    @apply w-full border text-left;
+  }
+  .rich-text th,
+  .rich-text td {
+    @apply border px-3 py-1.5;
+  }
+  .rich-text blockquote {
+    @apply border-l-4 pl-4 text-muted-foreground;
+  }
+}

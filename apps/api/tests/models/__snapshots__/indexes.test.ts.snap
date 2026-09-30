@@ -1,0 +1,181 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`database indexes > keeps the declared index set stable (review snapshot diffs in PRs) 1`] = `
+{
+  "Address": [
+    "{"user":1,"isDefault":-1,"updatedAt":-1}",
+    "{"user":1} unique=true partialFilterExpression={"isDefault":true}",
+  ],
+  "AuditLog": [
+    "{"resource":1,"resourceId":1,"createdAt":-1}",
+    "{"actor":1,"createdAt":-1}",
+    "{"action":1,"createdAt":-1}",
+    "{"createdAt":-1}",
+  ],
+  "AuthToken": [
+    "{"tokenHash":1} unique=true",
+    "{"user":1,"type":1,"usedAt":1}",
+    "{"expiresAt":1} expireAfterSeconds=0",
+  ],
+  "Brand": [
+    "{"slug":1} unique=true",
+    "{"name":1} unique=true",
+    "{"isActive":1,"isFeatured":-1,"name":1}",
+  ],
+  "Cart": [
+    "{"user":1} unique=true",
+  ],
+  "Category": [
+    "{"slug":1} unique=true",
+    "{"parent":1,"isActive":1,"sortOrder":1}",
+    "{"ancestors._id":1}",
+    "{"isFeatured":1,"isActive":1,"sortOrder":1}",
+  ],
+  "Counter": [],
+  "Coupon": [
+    "{"code":1} unique=true",
+    "{"isActive":1,"visibility":1,"endsAt":1}",
+    "{"ownerSeller":1,"createdAt":-1}",
+  ],
+  "CouponRedemption": [
+    "{"order":1} unique=true",
+    "{"coupon":1,"user":1,"status":1}",
+  ],
+  "IdempotencyKey": [
+    "{"user":1,"scope":1,"key":1} unique=true",
+    "{"expiresAt":1} expireAfterSeconds=0",
+  ],
+  "JobLock": [
+    "{"name":1} unique=true",
+    "{"expiresAt":1} expireAfterSeconds=0",
+  ],
+  "Notification": [
+    "{"user":1,"readAt":1,"createdAt":-1}",
+    "{"user":1,"dedupeKey":1} unique=true partialFilterExpression={"dedupeKey":{"$type":"string"}}",
+    "{"createdAt":1} expireAfterSeconds=15552000",
+  ],
+  "Offer": [
+    "{"isActive":1,"startsAt":1,"endsAt":1}",
+    "{"seller":1,"isActive":1,"endsAt":-1}",
+    "{"scope.products":1}",
+    "{"scope.categories":1}",
+  ],
+  "Order": [
+    "{"orderNumber":1} unique=true",
+    "{"user":1,"createdAt":-1}",
+    "{"status":1,"createdAt":-1}",
+    "{"expiresAt":1} partialFilterExpression={"status":"PENDING_PAYMENT"}",
+    "{"user":1,"idempotencyKey":1} unique=true partialFilterExpression={"idempotencyKey":{"$type":"string"}}",
+  ],
+  "OrderItem": [
+    "{"order":1}",
+    "{"sellerOrder":1}",
+    "{"user":1,"product":1}",
+    "{"seller":1,"createdAt":-1}",
+    "{"product":1,"createdAt":-1}",
+  ],
+  "Payment": [
+    "{"razorpayOrderId":1} unique=true",
+    "{"razorpayPaymentId":1} unique=true partialFilterExpression={"razorpayPaymentId":{"$type":"string"}}",
+    "{"order":1,"createdAt":-1}",
+    "{"status":1,"createdAt":-1}",
+  ],
+  "PlatformSetting": [
+    "{"key":1} unique=true",
+  ],
+  "Product": [
+    "{"slug":1} unique=true",
+    "{"status":1,"searchTokens":1}",
+    "{"name":"text","brandName":"text","tags":"text","shortDescription":"text"}",
+    "{"status":1,"categoryPath":1,"priceMin":1}",
+    "{"status":1,"categoryPath":1,"createdAt":-1}",
+    "{"status":1,"categoryPath":1,"soldCount":-1}",
+    "{"status":1,"categoryPath":1,"ratingAvg":-1,"ratingCount":-1}",
+    "{"status":1,"categoryPath":1,"discountPercent":-1}",
+    "{"status":1,"brand":1,"priceMin":1}",
+    "{"status":1,"attributes.key":1,"attributes.value":1}",
+    "{"status":1,"isFeatured":1,"createdAt":-1}",
+    "{"status":1,"soldCount":-1}",
+    "{"seller":1,"status":1,"updatedAt":-1}",
+  ],
+  "ProductVariant": [
+    "{"sku":1} unique=true",
+    "{"product":1,"optionsKey":1} unique=true",
+    "{"product":1,"isActive":1,"price":1}",
+    "{"seller":1,"stock":1}",
+  ],
+  "Refund": [
+    "{"idempotencyKey":1} unique=true",
+    "{"razorpayRefundId":1} unique=true partialFilterExpression={"razorpayRefundId":{"$type":"string"}}",
+    "{"order":1,"createdAt":-1}",
+    "{"status":1,"createdAt":-1}",
+  ],
+  "Report": [
+    "{"reporter":1,"targetType":1,"target":1} unique=true",
+    "{"status":1,"createdAt":1}",
+    "{"targetType":1,"target":1,"status":1}",
+  ],
+  "ReturnRequest": [
+    "{"orderItem":1} unique=true partialFilterExpression={"status":{"$in":["REQUESTED","APPROVED","PICKED_UP","RECEIVED"]}}",
+    "{"seller":1,"status":1,"createdAt":-1}",
+    "{"user":1,"createdAt":-1}",
+    "{"order":1}",
+  ],
+  "Review": [
+    "{"orderItem":1} unique=true",
+    "{"product":1,"status":1,"createdAt":-1}",
+    "{"product":1,"status":1,"helpfulCount":-1}",
+    "{"product":1,"status":1,"rating":1}",
+    "{"user":1,"createdAt":-1}",
+    "{"status":1,"reportCount":-1,"createdAt":-1}",
+    "{"seller":1,"createdAt":-1}",
+  ],
+  "Seller": [
+    "{"user":1} unique=true",
+    "{"slug":1} unique=true",
+    "{"status":1,"createdAt":-1}",
+  ],
+  "SellerApplication": [
+    "{"status":1,"createdAt":1}",
+    "{"user":1,"createdAt":-1}",
+    "{"user":1} unique=true partialFilterExpression={"status":"PENDING"}",
+  ],
+  "SellerLedgerEntry": [
+    "{"seller":1,"createdAt":-1}",
+    "{"seller":1,"status":1,"availableAt":1}",
+    "{"sellerOrder":1,"type":1} unique=true partialFilterExpression={"type":{"$in":["SALE","COMMISSION","SELLER_COUPON"]}}",
+  ],
+  "SellerOrder": [
+    "{"subOrderNumber":1} unique=true",
+    "{"seller":1,"status":1,"createdAt":-1}",
+    "{"seller":1,"createdAt":-1}",
+    "{"order":1}",
+    "{"status":1,"updatedAt":-1}",
+  ],
+  "Session": [
+    "{"tokenHash":1} unique=true",
+    "{"user":1,"revokedAt":1}",
+    "{"familyId":1}",
+    "{"expiresAt":1} expireAfterSeconds=0",
+  ],
+  "StockAlert": [
+    "{"user":1,"variant":1} unique=true",
+    "{"variant":1,"status":1}",
+    "{"user":1,"status":1,"updatedAt":-1}",
+  ],
+  "User": [
+    "{"email":1} unique=true",
+    "{"roles":1,"status":1,"createdAt":-1}",
+    "{"phone":1} sparse=true",
+  ],
+  "WebhookEvent": [
+    "{"provider":1,"eventId":1} unique=true",
+    "{"status":1,"receivedAt":-1}",
+    "{"receivedAt":1} expireAfterSeconds=7776000",
+  ],
+  "Wishlist": [
+    "{"user":1} unique=true",
+    "{"items.product":1}",
+  ],
+}
+`;

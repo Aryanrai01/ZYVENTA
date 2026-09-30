@@ -1,0 +1,15 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Native modules that must run their install scripts (argon2 is added in Phase 4).
+onlyBuiltDependencies:
+  - argon2
+  - esbuild
+  - mongodb-memory-server
+  - sharp
+  - unrs-resolver
+
+# Telemetry postinstall shipped by swagger-ui-dist — deliberately not executed.
+ignoredBuiltDependencies:
+  - '@scarf/scarf'
