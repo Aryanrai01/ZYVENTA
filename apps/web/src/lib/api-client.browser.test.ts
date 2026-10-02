@@ -27,13 +27,26 @@ function clearCookies() {
 }
 
 function mockApi(handler: Handler) {
-  const calls: { path: string; method: string; csrf: string | null }[] = [];
+  const calls: {
+    origin: string;
+    path: string;
+    method: string;
+    csrf: string | null;
+    credentials: RequestCredentials | undefined;
+  }[] = [];
   vi.stubGlobal(
     'fetch',
     vi.fn((input: string, init: RequestInit) => {
-      const path = new URL(input).pathname.replace('/api/v1', '');
+      const url = new URL(input);
+      const path = url.pathname.replace('/api/v1', '');
       const headers = (init.headers ?? {}) as Record<string, string>;
-      calls.push({ path, method: init.method ?? 'GET', csrf: headers['X-CSRF-Token'] ?? null });
+      calls.push({
+        origin: url.origin,
+        path,
+        method: init.method ?? 'GET',
+        csrf: headers['X-CSRF-Token'] ?? null,
+        credentials: init.credentials,
+      });
       const { status, body } = handler(path, init);
       return Promise.resolve(json(status, body));
     }),
@@ -60,7 +73,29 @@ describe('api-client in the browser', () => {
 
     await apiClient.post('/cart/items', { qty: 1 });
     expect(calls.map((c) => c.path)).toEqual(['/auth/csrf', '/cart/items']);
+    expect(calls.map((c) => c.origin)).toEqual([window.location.origin, window.location.origin]);
     expect(calls[1]?.csrf).toBe('token-123');
+  });
+
+  it('registers with the CSRF cookie and credentialed same-origin requests', async () => {
+    const calls = mockApi((path) => {
+      if (path === '/auth/csrf') {
+        setCookie('zv_csrf=token-123; path=/');
+        return ok({ csrfToken: 'token-123' });
+      }
+      return ok();
+    });
+
+    await apiClient.post('/auth/register', {
+      name: 'Test Shopper',
+      email: 'shopper@example.com',
+      password: 'StrongPass123',
+    });
+
+    expect(calls.map((call) => call.path)).toEqual(['/auth/csrf', '/auth/register']);
+    expect(calls.every((call) => call.origin === window.location.origin)).toBe(true);
+    expect(calls[1]?.csrf).toBe('token-123');
+    expect(calls.every((call) => call.credentials === 'include')).toBe(true);
   });
 
   it('refreshes once on 401 and retries the original request', async () => {

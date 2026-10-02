@@ -31,10 +31,9 @@ const API_PREFIX = '/api/v1';
  * API_INTERNAL_URL is not a secret — it is simply unused (undefined) in browser bundles.
  */
 export function apiBaseUrl(): string {
-  const base =
-    typeof window === 'undefined'
-      ? process.env.API_INTERNAL_URL || publicEnv.NEXT_PUBLIC_API_URL // `||`: empty string = unset
-      : publicEnv.NEXT_PUBLIC_API_URL;
+  if (typeof window !== 'undefined') return `${window.location.origin}${API_PREFIX}`;
+
+  const base = process.env.API_INTERNAL_URL || publicEnv.NEXT_PUBLIC_API_URL; // `||`: empty string = unset
   const normalized = base.replace(/\/+$/, '');
   return normalized.endsWith(API_PREFIX) ? normalized : `${normalized}${API_PREFIX}`;
 }

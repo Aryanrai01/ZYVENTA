@@ -31,6 +31,20 @@ const nextConfig: NextConfig = {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [{ protocol: 'https', hostname: 'res.cloudinary.com', pathname: '/**' }],
   },
+  async rewrites() {
+    const apiUrl = new URL(process.env.NEXT_PUBLIC_API_URL!);
+    const configuredPath = apiUrl.pathname.replace(/\/+$/, '');
+    const apiPath = configuredPath.endsWith('/api/v1')
+      ? configuredPath
+      : `${configuredPath}/api/v1`;
+
+    return [
+      {
+        source: '/api/v1/:path*',
+        destination: `${apiUrl.origin}${apiPath}/:path*`,
+      },
+    ];
+  },
   headers() {
     return Promise.resolve([{ source: '/:path*', headers: securityHeaders }]);
   },
