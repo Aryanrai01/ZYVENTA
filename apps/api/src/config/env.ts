@@ -150,9 +150,15 @@ const envSchema = z
         message: 'Set both RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET, or neither',
       });
     }
-    const appEnv = env.APP_ENV ?? (env.NODE_ENV === 'production' ? 'production' : 'development');
+    if (env.NODE_ENV === 'production' && !env.APP_ENV) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['APP_ENV'],
+        message: 'APP_ENV must be set to staging or production when NODE_ENV=production',
+      });
+    }
     // Staging intentionally uses Razorpay test mode; production requires live mode.
-    if (appEnv === 'production' && !env.RAZORPAY_KEY_ID?.startsWith('rzp_live_')) {
+    if (env.APP_ENV === 'production' && !env.RAZORPAY_KEY_ID?.startsWith('rzp_live_')) {
       ctx.addIssue({
         code: 'custom',
         path: ['RAZORPAY_KEY_ID'],
@@ -179,7 +185,7 @@ const envSchema = z
   })
   .transform((env) => ({
     ...env,
-    APP_ENV: env.APP_ENV ?? (env.NODE_ENV === 'production' ? 'production' : 'development'),
+    APP_ENV: env.APP_ENV ?? 'development',
     LOG_FORMAT: env.LOG_FORMAT ?? (env.NODE_ENV === 'development' ? 'pretty' : 'json'),
   }));
 

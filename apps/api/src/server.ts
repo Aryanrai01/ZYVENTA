@@ -12,7 +12,7 @@ async function bootstrap(): Promise<void> {
   await connectDatabase(env.MONGODB_URI);
 
   const app = createApp({});
-  const server = app.listen(env.PORT, () => {
+  const server = app.listen(env.PORT, '0.0.0.0', () => {
     logger.info(`API listening on http://localhost:${env.PORT} (${env.NODE_ENV})`);
     if (env.NODE_ENV !== 'production') {
       logger.info(`API docs at http://localhost:${env.PORT}/api/docs`);

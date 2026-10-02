@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { parseEnv } from '../src/config/env.js';
 
 const base = {
+  APP_ENV: 'development',
   JWT_ACCESS_SECRET: 'a1'.repeat(20),
   TOKEN_HASH_SECRET: 'b2'.repeat(20),
   CORS_ORIGINS: 'http://localhost:3000',
@@ -41,6 +42,7 @@ describe('parseEnv', () => {
       parseEnv({
         ...base,
         NODE_ENV: 'production',
+        APP_ENV: 'production',
         CORS_ORIGINS: 'https://www.zyventa.com',
         WEB_APP_URL: 'https://www.zyventa.com',
         RAZORPAY_KEY_ID: 'rzp_live_abc123',
@@ -64,6 +66,16 @@ describe('parseEnv', () => {
     expect(env.APP_ENV).toBe('staging');
   });
 
+  it('allows Razorpay test keys in the development app environment', () => {
+    expect(() =>
+      parseEnv({
+        ...base,
+        RAZORPAY_KEY_ID: 'rzp_test_abc123',
+        RAZORPAY_KEY_SECRET: 'test_secret_123',
+      }),
+    ).not.toThrow();
+  });
+
   it('requires live Razorpay keys in the production app environment', () => {
     expect(() =>
       parseEnv({
@@ -76,6 +88,18 @@ describe('parseEnv', () => {
         RAZORPAY_KEY_SECRET: 'test_secret_123',
       }),
     ).toThrow('RAZORPAY_KEY_ID: Use live Razorpay keys in production');
+  });
+
+  it('requires APP_ENV when running NODE_ENV=production', () => {
+    expect(() =>
+      parseEnv({
+        ...base,
+        NODE_ENV: 'production',
+        APP_ENV: undefined,
+        CORS_ORIGINS: 'https://www.zyventa.com',
+        WEB_APP_URL: 'https://www.zyventa.com',
+      }),
+    ).toThrow('APP_ENV must be set to staging or production when NODE_ENV=production');
   });
 
   it('rejects short, placeholder or reused secrets', () => {
