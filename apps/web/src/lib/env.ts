@@ -23,6 +23,8 @@ if (!parsed.success) {
 
 export const publicEnv = parsed.data;
 
+const API_PREFIX = '/api/v1';
+
 /**
  * Base URL for API calls. Server-side rendering inside Docker reaches the API over the
  * internal network (API_INTERNAL_URL, e.g. http://api:4000/api/v1); browsers use the public URL.
@@ -33,5 +35,6 @@ export function apiBaseUrl(): string {
     typeof window === 'undefined'
       ? process.env.API_INTERNAL_URL || publicEnv.NEXT_PUBLIC_API_URL // `||`: empty string = unset
       : publicEnv.NEXT_PUBLIC_API_URL;
-  return base.replace(/\/$/, '');
+  const normalized = base.replace(/\/+$/, '');
+  return normalized.endsWith(API_PREFIX) ? normalized : `${normalized}${API_PREFIX}`;
 }
