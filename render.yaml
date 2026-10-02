@@ -9,6 +9,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: APP_ENV
+        value: staging
       - key: LOG_FORMAT
         value: json
       - key: TRUST_PROXY_HOPS

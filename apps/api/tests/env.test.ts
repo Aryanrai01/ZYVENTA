@@ -16,6 +16,7 @@ describe('parseEnv', () => {
     });
     expect(env.PORT).toBe(4000);
     expect(env.NODE_ENV).toBe('development');
+    expect(env.APP_ENV).toBe('development');
     expect(env.CORS_ORIGINS).toEqual(['http://localhost:3000', 'http://127.0.0.1:3000']);
   });
 
@@ -42,8 +43,39 @@ describe('parseEnv', () => {
         NODE_ENV: 'production',
         CORS_ORIGINS: 'https://www.zyventa.com',
         WEB_APP_URL: 'https://www.zyventa.com',
+        RAZORPAY_KEY_ID: 'rzp_live_abc123',
+        RAZORPAY_KEY_SECRET: 'live_secret_123',
       }),
     ).not.toThrow();
+  });
+
+  it('allows Razorpay test keys in staging even when NODE_ENV is production', () => {
+    const env = parseEnv({
+      ...base,
+      NODE_ENV: 'production',
+      APP_ENV: 'staging',
+      CORS_ORIGINS: 'https://www.zyventa.com',
+      WEB_APP_URL: 'https://www.zyventa.com',
+      RAZORPAY_KEY_ID: 'rzp_test_abc123',
+      RAZORPAY_KEY_SECRET: 'test_secret_123',
+    });
+
+    expect(env.NODE_ENV).toBe('production');
+    expect(env.APP_ENV).toBe('staging');
+  });
+
+  it('requires live Razorpay keys in the production app environment', () => {
+    expect(() =>
+      parseEnv({
+        ...base,
+        NODE_ENV: 'production',
+        APP_ENV: 'production',
+        CORS_ORIGINS: 'https://www.zyventa.com',
+        WEB_APP_URL: 'https://www.zyventa.com',
+        RAZORPAY_KEY_ID: 'rzp_test_abc123',
+        RAZORPAY_KEY_SECRET: 'test_secret_123',
+      }),
+    ).toThrow('RAZORPAY_KEY_ID: Use live Razorpay keys in production');
   });
 
   it('rejects short, placeholder or reused secrets', () => {

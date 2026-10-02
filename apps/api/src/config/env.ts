@@ -31,6 +31,7 @@ function secret(name: string) {
 const envSchema = z
   .object({
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+    APP_ENV: z.enum(['development', 'staging', 'production']).optional(),
     PORT: z.coerce.number().int().min(1).max(65_535).default(4000),
     APP_VERSION: z.string().default('0.1.0'),
     LOG_LEVEL: z
@@ -149,14 +150,16 @@ const envSchema = z
         message: 'Set both RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET, or neither',
       });
     }
-    if (env.NODE_ENV !== 'production') return;
-    if (env.RAZORPAY_KEY_ID?.startsWith('rzp_test_')) {
+    const appEnv = env.APP_ENV ?? (env.NODE_ENV === 'production' ? 'production' : 'development');
+    // Staging intentionally uses Razorpay test mode; production requires live mode.
+    if (appEnv === 'production' && !env.RAZORPAY_KEY_ID?.startsWith('rzp_live_')) {
       ctx.addIssue({
         code: 'custom',
         path: ['RAZORPAY_KEY_ID'],
         message: 'Use live Razorpay keys in production',
       });
     }
+    if (env.NODE_ENV !== 'production') return;
     if (!env.WEB_APP_URL.startsWith('https://')) {
       ctx.addIssue({
         code: 'custom',
@@ -176,6 +179,7 @@ const envSchema = z
   })
   .transform((env) => ({
     ...env,
+    APP_ENV: env.APP_ENV ?? (env.NODE_ENV === 'production' ? 'production' : 'development'),
     LOG_FORMAT: env.LOG_FORMAT ?? (env.NODE_ENV === 'development' ? 'pretty' : 'json'),
   }));
 
